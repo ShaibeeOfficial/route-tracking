@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "521758074235",
+    "project_id": "routetracking-b6216",
+    "storage_bucket": "routetracking-b6216.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:521758074235:android:b9dfd7b49663947b9149de",
+        "android_client_info": {
+          "package_name": "com.routetracking"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgt6P-vftJhUz4Pa9jyquuww8YIyerGa0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
