@@ -27,12 +27,15 @@ import SahjaCity from "../screens/DriverCity/SahjaCity";
 import ZahirpeerMapDriver from "../screens/MapCities4Driver/ZahirpeerMapDriver";
 import ZahirpeerCity from "../screens/DriverCity/ZahirpeerCity";
 import SignUp from "../screens/SignUp";
+import SahjaMap from "../screens/MapCities4Student/SahjaMap";
+import SardargarhMap from "../screens/MapCities4Student/SardargarhMap";
+import ZahirpeerMap from "../screens/MapCities4Student/ZahirpeerMap";
 
 const myStack = createNativeStackNavigator();
 const Navigation = () => {
     return (
         <NavigationContainer>
-            <myStack.Navigator>
+            <myStack.Navigator initialRouteName="SplashScreen">
                 <myStack.Screen options={{ headerShown: false }} name="SplashScreen" component={SplashScreen} />
                 <myStack.Screen options={{ headerShown: false }} name="ChooseOption" component={ChooseOption} />
                 <myStack.Screen options={{ headerShown: false }} name="Login" component={Login} />
@@ -51,6 +54,9 @@ const Navigation = () => {
                 <myStack.Screen options={{ headerShown: false }} name="SardargarhTracking" component={SardargarhTracking} />
                 <myStack.Screen options={{ headerShown: false }} name="ZahirpeerTracking" component={ZahirpeerTracking} />
                 <myStack.Screen options={{ headerShown: false }} name="FerozaMap" component={FerozaMap} />
+                <myStack.Screen options={{ headerShown: false }} name="SahjaMap" component={SahjaMap} />
+                <myStack.Screen options={{ headerShown: false }} name="SardargarhMap" component={SardargarhMap} />
+                <myStack.Screen options={{ headerShown: false }} name="ZahirpeerMap" component={ZahirpeerMap} />
                 <myStack.Screen options={{ headerShown: false }} name="FerozaMapDriver" component={FerozaMapDriver} />
                 <myStack.Screen options={{ headerShown: false }} name="FerozaCity" component={FerozaCity} />
                 <myStack.Screen options={{ headerShown: false }} name="SardargarhMapDriver" component={SardargarhMapDriver} />

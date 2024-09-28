@@ -1,9 +1,8 @@
 import React from 'react';
-import { View, FlatList, Text, TouchableOpacity, Image } from 'react-native';
+import { View, FlatList, Text, TouchableOpacity } from 'react-native';
 import Back from 'react-native-vector-icons/dist/Entypo';
 import Style from './style';
 import { color } from '../../../theme/color';
-
 
 const SahjaTracking = ({ navigation }) => {
   const data = [
@@ -17,8 +16,8 @@ const SahjaTracking = ({ navigation }) => {
     <TouchableOpacity
       style={Style.busItem}
       onPress={() => {
-        // Handle bus item press, you can navigate to another screen or perform an action
-        console.log(`Bus ${item.busNumber} pressed`);
+        // Navigate to the map screen when a bus item is pressed
+        navigation.navigate('SahjaMap', { busNumber: item.busNumber });
       }}
     >
       <Text style={Style.busText}>{item.busNumber}</Text>

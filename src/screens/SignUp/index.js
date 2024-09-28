@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { styles } from '../SignUp/style';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { color } from '../../theme/color';
 import InputBox from '../../reuseableComponents/InputBox';
 import firestore from '@react-native-firebase/firestore';
@@ -13,6 +13,7 @@ const SignUp = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState(''); // New state for role
   const [token, setToken] = useState('');
 
   useEffect(() => {
@@ -24,8 +25,18 @@ const SignUp = () => {
     setToken(token);
   };
 
+  useFocusEffect(
+    useCallback(() => {
+      // Clear the form data when the screen is focused
+      setName('');
+      setEmail('');
+      setPassword('');
+      setRole('');
+    }, [])
+  );
+
   const validateEmail = (email) => {
-    const emailRegex = /^[a-zA-Z0-9._-]+@gmail\.com$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
@@ -34,42 +45,42 @@ const SignUp = () => {
     return passwordRegex.test(password);
   };
 
-  const checkFieldsNotEmpty = (name, email, password) => {
-    if (!name || !email || !password) {
+  const checkFieldsNotEmpty = (name, email, password, role) => {
+    if (!name || !email || !password || !role) {
       Toast.show({
         type: 'error',
         text1: 'Fill all the Fields!',
         position: 'top',
         visibilityTime: 6000,
-      })
+      });
       return false;
     }
     return true;
   };
 
   const saveData = () => {
-    if (!checkFieldsNotEmpty(name, email, password)) {
+    if (!checkFieldsNotEmpty(name, email, password, role)) {
       return;
     }
 
     if (!validateEmail(email)) {
       Toast.show({
         type: 'error',
-        text1: 'Invalid Email !',
+        text1: 'Invalid Email!',
         position: 'top',
         visibilityTime: 6000,
-      })
+      });
       return;
     }
 
     if (!validatePassword(password)) {
       Toast.show({
         type: 'error',
-        text1: 'Password Minimum 8 Characters Long !',
+        text1: 'Password Minimum 8 Characters Long!',
         text2: 'At least 1 uppercase-letter, 1 lowercase-letter, 1 symbol, and 1 digit.',
         position: 'top',
         visibilityTime: 6000,
-      })
+      });
       return;
     }
 
@@ -79,6 +90,7 @@ const SignUp = () => {
         name: name,
         email: email,
         password: password,
+        role: role,
         token: token,
       })
       .then(() => {
@@ -135,6 +147,17 @@ const SignUp = () => {
           />
         </View>
 
+        <View>
+          <Text style={styles.Txt}>Role</Text>
+          <InputBox
+            value={role}
+            onChangeText={setRole}
+            title='team'
+            plcName={'Role (Driver/Student)'}
+            plcTxtClr={color.White}
+          />
+        </View>
+
         <TouchableOpacity onPress={saveData} style={styles.SpBtn}>
           <Text style={styles.lgnText}>Sign Up</Text>
         </TouchableOpacity>
@@ -146,7 +169,7 @@ const SignUp = () => {
           </TouchableOpacity>
         </View>
       </View>
-      <Toast ref={(ref) => { Toast.setRef(ref) }} />
+      <Toast ref={(ref) => { Toast.setRef(ref); }} />
     </View>
   );
 };

@@ -18,6 +18,7 @@ const SardargarhTracking = ({ navigation }) => {
       style={Style.busItem}
       onPress={() => {
         // Handle bus item press, you can navigate to another screen or perform an action
+        navigation.navigate('SardargarhMap', { busNumber: item.busNumber });
         console.log(`Bus ${item.busNumber} pressed`);
       }}
     >

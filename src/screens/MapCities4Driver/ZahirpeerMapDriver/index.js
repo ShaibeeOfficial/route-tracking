@@ -1,19 +1,18 @@
-
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image,StyleSheet, PermissionsAndroid, TouchableOpacity } from 'react-native';
-import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
+import { View, Text, StyleSheet, PermissionsAndroid, TouchableOpacity, ToastAndroid } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import { initializeApp } from '@react-native-firebase/app';
 import database from '@react-native-firebase/database';
-import PushNotification from 'react-native-push-notification';
 import { useNavigation } from '@react-navigation/native';
 import Back from 'react-native-vector-icons/dist/Entypo';
 import Fonts from '../../../theme/Fonts';
 import { color } from '../../../theme/color';
+import { showLocalNotification } from '../../../../pushNotification'; // Adjust the path as necessary
 
 const firebaseConfig = {
   apiKey: "AIzaSyDgt6P-vftJhUz4Pa9jyquuww8YIyerGa0",
-  projectId: "routetracking-b6216  ",
+  projectId: "routetracking-b6216",
   storageBucket: "routetracking-b6216.appspot.com",
   appId: "1:521758074235:android:b9dfd7b49663947b9149de",
 };
@@ -33,7 +32,6 @@ const ZahirpeerMapDriver = ({ route }) => {
   });
 
   useEffect(() => {
-    // Request location permission
     async function requestLocationPermission() {
       try {
         const granted = await PermissionsAndroid.request(
@@ -48,7 +46,6 @@ const ZahirpeerMapDriver = ({ route }) => {
         );
 
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          // Get current location
           Geolocation.getCurrentPosition(
             position => {
               const { latitude, longitude } = position.coords;
@@ -69,45 +66,30 @@ const ZahirpeerMapDriver = ({ route }) => {
       }
     }
 
-    // Call the function to request location permission
     requestLocationPermission();
-
-    // Cleanup function to clear the watch when the component is unmounted
     return () => Geolocation.clearWatch();
-  }, []); // Empty dependency array to run this effect only once when the component mounts
+  }, []);
 
   useEffect(() => {
-    console.log(region, '------');
     setLat(region.latitude);
     setLong(region.longitude);
   }, [region]);
 
-
-  const showNotification = () => {
-    PushNotification.localNotification({
-      title: 'Route Tracking',
-      message: 'Your Zahirpeer Bus is Leaving in 15 minutes!!Hurry up',
-    });
-  };
-
   const saveLocation = () => {
-    // Save data to Firebase
     database()
-    .ref(`busLocations/Zahirpeer/${item.busNumber}`)
+      .ref(`busLocations/Zahirpeer/${item.busNumber}`)
       .set({
         latitude: lat,
         longitude: long,
       })
       .then(() => {
         ToastAndroid.show('Location saved to Database', ToastAndroid.SHORT);
-        console.log('Data saved to Firebase');
-        showNotification()
+        showLocalNotification('Route Tracking', 'Your Zahirpeer Bus is Leaving in 15 minutes!! Hurry up');
       })
       .catch(error => {
         console.log('Error saving data to Firebase: ', error);
       });
   };
-
   const updateLocation = () => {
     // Save data to Firebase
     database()
@@ -124,11 +106,10 @@ const ZahirpeerMapDriver = ({ route }) => {
       });
   };
 
-  
   return (
     <View style={styles.container}>
        <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate('FerozaCity')}>
+        <TouchableOpacity onPress={() => navigation.navigate('ZahirpeerCity')}>
         <Back name='chevron-left' size={28} color={color.White} />
         </TouchableOpacity>
         <View style={{ width: '30%' }} />
@@ -154,8 +135,8 @@ const ZahirpeerMapDriver = ({ route }) => {
       >
         <Text style={{fontWeight:Fonts.PoppinsBold,color:color.White}}>Save current Location</Text>
       </TouchableOpacity>
-      <Text style={{color:color.Black,fontSize:18}}>{lat}</Text>
-      <Text style={{color:color.Black,fontSize:18}}>{long}</Text>
+      <Text style={{color:color.Black,fontSize:18}}>  Latitude: {lat}</Text>
+      <Text style={{color:color.Black,fontSize:18}}>  Longitude: {long}</Text>
 
       <TouchableOpacity
         style={{

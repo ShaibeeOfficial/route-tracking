@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, PermissionsAndroid, TouchableOpacity } from 'react-native';
-import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
+import { View, Text, StyleSheet, PermissionsAndroid, TouchableOpacity, ToastAndroid } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import { initializeApp } from '@react-native-firebase/app';
 import database from '@react-native-firebase/database';
-import PushNotification from 'react-native-push-notification';
 import { useNavigation } from '@react-navigation/native';
 import Back from 'react-native-vector-icons/dist/Entypo';
 import Fonts from '../../../theme/Fonts';
 import { color } from '../../../theme/color';
+import { showLocalNotification } from '../../../../pushNotification'; // Adjust the path as necessary
 
 const firebaseConfig = {
   apiKey: "AIzaSyDgt6P-vftJhUz4Pa9jyquuww8YIyerGa0",
@@ -32,8 +32,7 @@ const SahjaMapDriver = ({ route }) => {
   });
 
   useEffect(() => {
-    // Request location permission
-    const requestLocationPermission = async () => {
+    async function requestLocationPermission() {
       try {
         const granted = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
@@ -47,7 +46,6 @@ const SahjaMapDriver = ({ route }) => {
         );
 
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          // Get current location
           Geolocation.getCurrentPosition(
             position => {
               const { latitude, longitude } = position.coords;
@@ -56,14 +54,9 @@ const SahjaMapDriver = ({ route }) => {
                 latitude,
                 longitude,
               });
-              setLat(latitude);
-              setLong(longitude);
             },
-            error => {
-              console.log('Geolocation Error:', error);
-              // Handle geolocation error
-            },
-            { enableHighAccuracy: true, timeout: 30000, maximumAge: 1000 }
+            error => console.log(error),
+            { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
           );
         } else {
           console.log('Location permission denied');
@@ -71,17 +64,18 @@ const SahjaMapDriver = ({ route }) => {
       } catch (err) {
         console.warn(err);
       }
-    };
+    }
 
-    // Call the function to request location permission
     requestLocationPermission();
-
-    // Cleanup function to clear the watch when the component is unmounted
     return () => Geolocation.clearWatch();
-  }, []); // Empty dependency array to run this effect only once when the component mounts
+  }, []);
+
+  useEffect(() => {
+    setLat(region.latitude);
+    setLong(region.longitude);
+  }, [region]);
 
   const saveLocation = () => {
-    // Save data to Firebase
     database()
       .ref(`busLocations/Sahja/${item.busNumber}`)
       .set({
@@ -89,51 +83,75 @@ const SahjaMapDriver = ({ route }) => {
         longitude: long,
       })
       .then(() => {
+        ToastAndroid.show('Location saved to Database', ToastAndroid.SHORT);
+        showLocalNotification('Route Tracking', 'Your Sahja Bus is Leaving in 15 minutes!! Hurry up');
+      })
+      .catch(error => {
+        console.log('Error saving data to Firebase: ', error);
+      });
+  };
+  const updateLocation = () => {
+    // Save data to Firebase
+    database()
+    .ref(`busLocations/Sahja/${item.busNumber}`)
+      .set({
+        latitude: lat,
+        longitude: long,
+      })
+      .then(() => {
         console.log('Data saved to Firebase');
-        // Show notification after saving location
-        showNotification();
       })
       .catch(error => {
         console.log('Error saving data to Firebase: ', error);
       });
   };
 
-  const showNotification = () => {
-    PushNotification.localNotification({
-      title: 'Route Tracking',
-      message: 'Your Sahja Bus is Leaving in 15 minutes!! Hurry up',
-    });
-  };
-
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate('SahjaCity')}>
-          <Back name='chevron-left' size={28} color={color.White} />
+        <Back name='chevron-left' size={28} color={color.White} />
         </TouchableOpacity>
         <View style={{ width: '30%' }} />
         <Text style={styles.headerText}>{item.busNumber}</Text>
       </View>
-
+      {/* <Text>{item.busNumber}</Text> */}
       <MapView style={styles.map} region={region}>
         <Marker coordinate={region} title="You are here" />
       </MapView>
-
       <TouchableOpacity
-        style={styles.button}
+        style={{
+          backgroundColor: color.Primary,
+          height: 50,
+          width: '90%',
+          alignSelf: 'center',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginTop: '10%',
+          marginBottom:'5%',
+          borderRadius:12,
+        }}
         onPress={saveLocation}
       >
-        <Text style={styles.buttonText}>Save current Location</Text>
+        <Text style={{fontWeight:Fonts.PoppinsBold,color:color.White}}>Save current Location</Text>
       </TouchableOpacity>
+      <Text style={{color:color.Black,fontSize:18}}>  Latitude: {lat}</Text>
+      <Text style={{color:color.Black,fontSize:18}}>  Longitude: {long}</Text>
 
       <TouchableOpacity
-        style={styles.button}
-        onPress={() => {
-          // Update location when button is pressed
-          saveLocation();
+        style={{
+          backgroundColor: color.Primary,
+          height: 50,
+          width: '90%',
+          alignSelf: 'center',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginTop: '10%',
+          borderRadius:12,
         }}
+        onPress={updateLocation}
       >
-        <Text style={styles.buttonText}>Update</Text>
+        <Text style={{fontWeight:Fonts.PoppinsBold,color:color.White}}>Update</Text>
       </TouchableOpacity>
     </View>
   );
@@ -144,7 +162,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   map: {
-    flex: 0.5,
+    height: '55%',
+    // marginTop:10,
   },
   header: {
     flexDirection: 'row',
@@ -152,23 +171,14 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     padding: 10,
     backgroundColor: color.Primary,
+    // marginBottom:10,
+  },
+  backButton: {
+    width: 35,
+    height: 35,
   },
   headerText: {
     fontSize: 20,
-    color: color.White,
-  },
-  button: {
-    backgroundColor: color.Primary,
-    height: 50,
-    width: '90%',
-    alignSelf: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: '5%',
-    borderRadius: 12,
-  },
-  buttonText: {
-    fontWeight: Fonts.PoppinsBold,
     color: color.White,
   },
 });

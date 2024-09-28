@@ -5,7 +5,7 @@ import InputBox from '../../reuseableComponents/InputBox';
 import { color } from '../../theme/color';
 import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
-import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 
 const Login = () => {
   const navigation = useNavigation();
@@ -34,36 +34,45 @@ const Login = () => {
     }
   }, [logoutMessage]);
 
-  const checkLogin = () => {
-    auth()
-      .signInWithEmailAndPassword(email, password)
-      .then(() => {
-        Toast.show({
-          type: 'info',
-          text1: 'Wait a Sec!',
-          position: 'top',
-          visibilityTime: 2000,
-        });
-        setTimeout(() => {
-          const domain = email.split('@')[1];
-          if (domain === 'driver.com') {
-            navigation.navigate('Home4Driver');
-          } else {
-            navigation.navigate('Home4Student');
-          }
-        }, 1000);
-        console.log('Successfully Logged In!');
-      })
-      .catch(error => {
-        Toast.show({
-          type: 'error',
-          text1: 'Invalid User',
-          text2: 'Please check your Email/Password',
-          position: 'top',
-          visibilityTime: 6000,
-        });
-        console.log('Invalid User!');
+  const checkLogin = async () => {
+    try {
+      const usersSnapshot = await firestore().collection('Users').where('email', '==', email).get();
+      if (usersSnapshot.empty) {
+        throw new Error('Invalid User');
+      }
+      const userDoc = usersSnapshot.docs[0];
+      const userData = userDoc.data();
+
+      if (userData.password !== password) {
+        throw new Error('Invalid User');
+      }
+
+      Toast.show({
+        type: 'info',
+        text1: 'Wait a Sec!',
+        position: 'top',
+        visibilityTime: 2000,
       });
+
+      setTimeout(() => {
+        if (userData.role === 'Driver') {
+          navigation.navigate('Home4Driver');
+        } else {
+          navigation.navigate('Home4Student');
+        }
+      }, 1000);
+
+      console.log('Successfully Logged In!');
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Invalid User',
+        text2: 'Please check your Email/Password',
+        position: 'top',
+        visibilityTime: 6000,
+      });
+      console.log('Invalid User!');
+    }
   };
 
   return (
@@ -106,7 +115,6 @@ const Login = () => {
           <TouchableOpacity onPress={checkLogin} style={styles.SpBtn}>
             <Text style={styles.lgnText}>Login</Text>
           </TouchableOpacity>
-
         </View>
         <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 20 }}>
           <Text style={styles.qTxt}>Don't have Account ?</Text>
@@ -115,7 +123,7 @@ const Login = () => {
           </TouchableOpacity>
         </View>
       </View>
-      <Toast ref={ref => Toast.setRef(ref)} />
+      <Toast ref={(ref) => { Toast.setRef(ref); }} />
     </View>
   );
 };
