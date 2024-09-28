@@ -10,10 +10,13 @@ const ChooseOption = () => {
         <Image source={require('../../assets/Logo/RouteTrackingLogo.png')} style={styles.logo} />
       </View>
       <View style={styles.buttonsView}>
-        <Text style={styles.welTxt}>Welcome</Text>
-        <Text style={styles.Txt}>To The Route Tracking</Text>
+        {/* <Text style={styles.welTxt}>Welcome</Text>
+        <Text style={styles.Txt}>To The Route Tracking</Text> */}
         <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.Login}>
           <Text style={styles.lgnText}>Login</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('SignUp')} style={styles.SignUp}>
+          <Text style={styles.signUpText}>SignUp</Text>
         </TouchableOpacity>
       </View>
     </View>

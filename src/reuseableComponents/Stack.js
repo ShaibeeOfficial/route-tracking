@@ -26,6 +26,7 @@ import SahjaMapDriver from "../screens/MapCities4Driver/SahjaMapDriver";
 import SahjaCity from "../screens/DriverCity/SahjaCity";
 import ZahirpeerMapDriver from "../screens/MapCities4Driver/ZahirpeerMapDriver";
 import ZahirpeerCity from "../screens/DriverCity/ZahirpeerCity";
+import SignUp from "../screens/SignUp";
 
 const myStack = createNativeStackNavigator();
 const Navigation = () => {
@@ -35,6 +36,7 @@ const Navigation = () => {
                 <myStack.Screen options={{ headerShown: false }} name="SplashScreen" component={SplashScreen} />
                 <myStack.Screen options={{ headerShown: false }} name="ChooseOption" component={ChooseOption} />
                 <myStack.Screen options={{ headerShown: false }} name="Login" component={Login} />
+                <myStack.Screen options={{ headerShown: false }} name="SignUp" component={SignUp} />
                 <myStack.Screen options={{ headerShown: false }} name="Home4Student" component={Home4Student} />
                 <myStack.Screen options={{ headerShown: false }} name="Home4Driver" component={Home4Driver} />
                 <myStack.Screen options={{ headerShown: false }} name="ChooseCity" component={ChooseCity} />

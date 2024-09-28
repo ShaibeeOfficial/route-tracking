@@ -108,6 +108,12 @@ const Login = () => {
           </TouchableOpacity>
 
         </View>
+        <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 20 }}>
+          <Text style={styles.qTxt}>Don't have Account ?</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+            <Text style={styles.lgnTxt}>Click Here</Text>
+          </TouchableOpacity>
+        </View>
       </View>
       <Toast ref={ref => Toast.setRef(ref)} />
     </View>

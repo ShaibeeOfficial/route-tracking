@@ -62,6 +62,5 @@ export const styles = StyleSheet.create({
         alignSelf: 'center',
         color: color.White,
         fontSize: 12,
-    }
-
+    },
 });
